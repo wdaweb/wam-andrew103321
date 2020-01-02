@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            overflow: hidden;
+            /* background-color: rgba(0, 0, 0, 0.3); */
+            background-image:url(./12.jpg);
+            background-repeat: no-repeat;
+            background-size: contain;
+            position: relative;
+         
+        }
+
+        #bg {
+           
+    
+            width: 900px;
+    
+        }
+
+        table {
+            position: relative;
+            left: 24%;
+            top: 159px;
+            /* background-image: url(./6.jpg); */
+            /* url(圖檔路徑) x位置 y位置, 預設樣式 */
+            cursor: url(./10.png) 50 50, auto;
+        }
+
+        td {
+            float: left;
+            margin-top: 50px;
+            margin-left: 30px;
+            width: 200px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: black;
+            box-shadow: 0 20px #706565 inset;
+            margin-left: 50px;
+            
+
+
+        }
+
+        td>div {
+            height: 210px;
+            width: 192px;
+            position: relative;
+            top: -110px;
+            left: 2px;
+            border-radius: 30%;
+
+
+
+        }
+
+        .red {
+            animation: move 3s ease-in-out infinite;
+            background-image: url(./7.gif);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        @keyframes move {
+            50% {
+
+                background-position: center 193px;
+
+            }
+
+            100% {
+                background-position: center 20px;
+
+
+            }
+        }
+
+        .blue {
+            background-image: url(./8.gif);
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: out 1s ease-in-out infinite;
+            /* background-position: center 193px; */
+
+        }
+
+        @keyframes out {
+            50% {
+
+                background-position: center 20px;
+
+            }
+
+            100% {
+                background-position: center 193px;
+            }
+        }
+
+        #img {
+            position: relative;
+            top: -280px;
+            left: -750px;
+        }
+
+        #text {
+            position: relative;
+            top: -453px;
+            left: 206px;
+        }
+    </style>
+</head>
+
+<body>
+
+        <table cellspacing="70">
+            <tr>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div></div>
+                </td>
+                <td>
+                    <div></div>
+                </td>
+            </tr>
+        </table>
+        <img id="bg"></img>
+    <img src="./9.png" alt="" id="img">
+    <div id="text">
+        目前分數<span id="scoreText"></span><br>
+        目前最高分<span id="highNameText">沒有人</span>的分數<span id="highscoreText"></span><br>
+        剩餘時間<span id="sec">15</span><br>
+        <input type="button" value="開始遊戲" id="startBtn"><br>
+    </div>
+    <script>
+        let score = 0;
+        let scoreText = document.getElementById("scoreText");
+        let sec = document.getElementById("sec");
+        let startBtn = document.getElementById("startBtn");
+        // 獲取具有指定標籤名稱的文檔中的所有元素：
+        let tds = document.getElementsByTagName("div");
+
+        //設定計時器的變數為0，避免被 clearInterval 清除，才可以重複利用
+        let gameTime = 0;
+
+        let high = { name: "", score: 0 };
+        let highNameText = document.getElementById("highNameText");
+        let highscoreText = document.getElementById("highscoreText");
+        let highStorage = window.localStorage.getItem("highscore");
+
+        if (highStorage != null) {
+            high = JSON.parse(highStorage);
+            highNameText.innerText = high.name;
+            highscoreText.innerText = high.score;
+        }
+
+        startBtn.onclick = function () {
+            //  setAttribute（）方法將指定的屬性添加到元素，並為其指定值  
+            // 將開始按鈕停用 
+            startBtn.setAttribute("disabled", true);
+
+
+            let gametimer = 0;
+
+            sec1 = 15;
+            sec.innerText = sec1
+
+
+            gametimer = setInterval(() => {
+                // 秒數減 1，修改文字
+                sec1--;
+                sec.innerText = sec1
+                console.log(sec.innerText)
+                // 如果到 0
+                if (sec1 == 0) {
+                    clearInterval(gametimer);
+
+                }
+            }, 1000)
+            score = 0;
+            scoreText.innerText = score;
+
+
+            //  setInterval 開始時會延遲一秒，所以必須在外面先執行一次
+            //  減少寫兩次，將它寫成 function  game()
+            gameTimer = setInterval(game, 1500);
+            game();
+
+            setTimeout(() => {
+                clearInterval(gameTimer);
+                for (let div of tds) {
+                    // classList 新增或移除 css
+                    div.classList.remove("red");
+                    div.classList.remove("blue");
+                }
+                setTimeout(() => {
+                    alert(`時間到，你得到${score} 分!`);
+                }, 1000);
+                // removeAttribute 會把整個殺掉 gameTimer
+                startBtn.removeAttribute("disabled");
+
+
+
+                if (score > high.score) {
+                    let playerName = prompt("恭喜你得到最高分，請輸入你的名字");
+                    high.name = playerName;
+                    highNameText.innerText = playerName;
+                    high.score = score;
+                    highscoreText.innerText = score;
+                    //  window.localStorage 將值存在網頁 applicatioin 的 localStorage
+                    // window.localStorage.setItem 只能存文字
+                    // josn.stringify 可以將 json 陣列轉成文字
+                    window.localStorage.setItem("highscore", JSON.stringify(high));
+                }
+            }, 15000);
+        }
+
+        let game = function () {
+            for (let div of tds) {
+                // classList 新增或移除 css
+                div.classList.remove("red");
+                div.classList.remove("blue");
+            }
+            for (let i = 0; i < 3; i++) {
+                //  隨機取 random 0~1 
+                let rand = Math.round(Math.random() * 8);
+                if (tds[rand].classList.contains("red")) {
+                    i--;
+                }
+                tds[rand].classList.add("red");
+            }
+
+            for (let div of tds) {
+                div.onclick = function () {
+                    if (div.classList.contains("red")) {
+                        div.classList.remove("red");
+                        div.classList.add("blue");
+                        score++;
+                        scoreText.innerText = score;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
